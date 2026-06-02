@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: parking
+  datasource:
+    url: jdbc:mysql://localhost:3306/parking?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: parking
+    password: parking
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+server:
+  port: 3003
+
+simulator:
+  base-url: http://localhost:3000
+  retry:
+    delay-ms: 5000
+    max-attempts: 0
