@@ -4,29 +4,74 @@ Backend em Java 21 + Spring Boot 4 para gerenciamento de vagas, processamento de
 
 ## Pré-requisitos
 
-- Java 21
-- Maven 3.9+
-- Docker e Docker Compose
+**Docker (recomendado):** Docker e Docker Compose v2.
+
+**Execução local:** Java 21, Maven 3.9+, Docker (apenas para o MySQL e simulador).
 
 ## Como executar
 
-### 1. Subir o MySQL
+### Opção A — Tudo com Docker Compose (recomendado)
+
+Sobe MySQL, simulador e backend na mesma rede Docker. Não exige Java nem Maven instalados na máquina.
 
 ```bash
-docker-compose up -d
+docker compose up --build -d
 ```
 
-### 2. Subir o simulador
+Aguarde os três serviços ficarem saudáveis (a primeira build pode levar alguns minutos):
 
 ```bash
-docker run -d --network=host cfontes0estapar/garage-sim:1.0.0
+docker compose ps
 ```
 
-O simulador expõe `GET /garage` na porta **3000** e envia webhooks para o backend.
+Validação:
 
-### 3. Configuração
+```bash
+curl -s "http://localhost:3003/revenue?date=2025-01-01&sector=A"
+curl -s http://localhost:3000/garage | head
+```
 
-Em [`src/main/resources/application.yml`](src/main/resources/application.yml):
+| Serviço      | URL / porta host |
+| ------------ | ---------------- |
+| Backend      | http://localhost:3003 |
+| Simulador    | http://localhost:3000 |
+| MySQL        | localhost:3306 |
+
+Parar e remover containers:
+
+```bash
+docker compose down
+```
+
+Remover também o volume do banco:
+
+```bash
+docker compose down -v
+```
+
+O perfil `docker` ([`application-docker.yml`](src/main/resources/application-docker.yml)) aponta o backend para `mysql` e `garage-sim` pelos nomes dos serviços. O simulador recebe `EXTERNAL_API_URL=http://parking:3003/webhook` via Compose.
+
+### Opção B — Desenvolvimento local
+
+#### 1. Subir o MySQL
+
+```bash
+docker compose up -d mysql
+```
+
+#### 2. Subir o simulador
+
+**Linux:**
+
+```bash
+docker run -d --name garage-sim --network=host cfontes0estapar/garage-sim:1.0.0
+```
+
+O simulador expõe `GET /garage` na porta **3000** e envia webhooks para `http://localhost:3003/webhook`.
+
+#### 3. Configuração
+
+Em [`src/main/resources/application.yml`](src/main/resources/application.yml) (já configurado para localhost):
 
 ```yaml
 server:
@@ -35,7 +80,7 @@ simulator:
   base-url: http://localhost:3000
 ```
 
-### 4. Build e execução
+#### 4. Build e execução
 
 ```bash
 mvn clean install

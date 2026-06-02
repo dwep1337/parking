@@ -14,3 +14,35 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  garage-sim:
+    image: cfontes0estapar/garage-sim:1.0.0
+    container_name: parking-garage-sim
+    environment:
+      EXTERNAL_API_URL: http://parking:3003/webhook
+    ports:
+      - "3000:3000"
+
+  parking:
+    build: .
+    container_name: parking-app
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "3003:3003"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      garage-sim:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/revenue?date=2025-01-01&sector=A"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+volumes:
+  mysql-data:
