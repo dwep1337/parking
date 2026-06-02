@@ -1,0 +1,16 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: parking-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: parking
+      MYSQL_USER: parking
+      MYSQL_PASSWORD: parking
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uparking", "-pparking"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
