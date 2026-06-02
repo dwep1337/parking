@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.estapar.exception.BusinessValidationException;
 import com.estapar.dto.RevenueRequestDTO;
 import com.estapar.dto.RevenueResponseDTO;
 import com.estapar.service.RevenueService;
@@ -30,7 +31,7 @@ public class RevenueController {
 		String resolvedSector = body != null && body.sector() != null ? body.sector() : sector;
 
 		if (resolvedDate == null || resolvedSector == null || resolvedSector.isBlank()) {
-			throw new IllegalArgumentException("Parâmetros date e sector são obrigatórios");
+			throw new BusinessValidationException("Parâmetros date e sector são obrigatórios");
 		}
 
 		return ResponseEntity.ok(revenueService.getRevenue(resolvedDate, resolvedSector));

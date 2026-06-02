@@ -31,6 +31,7 @@ import com.estapar.entity.Vehicle;
 import com.estapar.enums.EventType;
 import com.estapar.enums.SpotStatus;
 import com.estapar.enums.VehicleStatus;
+import com.estapar.exception.BusinessValidationException;
 import com.estapar.exception.ParkingFullException;
 import com.estapar.exception.VehicleNotFoundException;
 import com.estapar.repository.GarageSectorRepository;
@@ -202,6 +203,40 @@ class ParkingServiceTest {
 		assertEquals(VehicleStatus.PARKED, vehicle.getStatus());
 		assertEquals(SpotStatus.AVAILABLE, oldSpot.getStatus());
 		assertEquals(SpotStatus.OCCUPIED, targetSpot.getStatus());
+	}
+
+	@Test
+	void shouldFailWhenLicensePlateIsBlank() {
+		EntryEventDTO event = new EntryEventDTO("   ", entryTime, EventType.ENTRY);
+
+		assertThrows(BusinessValidationException.class, () -> parkingService.handleEntry(event));
+		verify(vehicleRepository, never()).save(any());
+	}
+
+	@Test
+	void shouldFailWhenExitTimeIsBeforeEntryTime() {
+		Instant exitTime = entryTime.minusSeconds(60);
+		ExitEventDTO event = new ExitEventDTO("ABC1234", exitTime, EventType.EXIT);
+
+		Vehicle vehicle = new Vehicle();
+		vehicle.setLicensePlate("ABC1234");
+		vehicle.setEntryTime(entryTime);
+		vehicle.setStatus(VehicleStatus.PARKED);
+
+		when(vehicleRepository.findByLicensePlateAndStatusIn(eq("ABC1234"), any()))
+				.thenReturn(Optional.of(vehicle));
+
+		BusinessValidationException ex = assertThrows(BusinessValidationException.class,
+				() -> parkingService.handleExit(event));
+		assertEquals("Horário de saída não pode ser anterior ao horário de entrada", ex.getMessage());
+	}
+
+	@Test
+	void shouldFailWhenCoordinatesAreNull() {
+		ParkedEventDTO event = new ParkedEventDTO("ABC1234", null, -46.655981, EventType.PARKED);
+
+		assertThrows(BusinessValidationException.class, () -> parkingService.handleParked(event));
+		verify(vehicleRepository, never()).save(any());
 	}
 
 	@Test

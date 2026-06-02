@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.estapar.config.UtcInstantDeserializer;
+import com.estapar.exception.BusinessValidationException;
 import com.estapar.exception.ParkingFullException;
 import com.estapar.exception.VehicleNotFoundException;
 import com.estapar.service.ParkingService;
@@ -77,7 +78,7 @@ class WebhookControllerTest {
 
 	@Test
 	void shouldReturn200WhenParkedFailsValidation() throws Exception {
-		doThrow(new IllegalArgumentException("Coordenadas são obrigatórias"))
+		doThrow(new BusinessValidationException("Coordenadas são obrigatórias"))
 				.when(parkingService).handleParked(any());
 
 		mockMvc.perform(post("/webhook")

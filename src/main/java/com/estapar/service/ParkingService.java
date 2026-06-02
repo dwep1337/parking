@@ -17,6 +17,7 @@ import com.estapar.entity.Revenue;
 import com.estapar.entity.Vehicle;
 import com.estapar.enums.SpotStatus;
 import com.estapar.enums.VehicleStatus;
+import com.estapar.exception.BusinessValidationException;
 import com.estapar.exception.ParkingFullException;
 import com.estapar.exception.VehicleNotFoundException;
 import com.estapar.repository.GarageSectorRepository;
@@ -45,6 +46,10 @@ public class ParkingService {
 	@Transactional
 	public void handleEntry(EntryEventDTO event) {
 		validateLicensePlate(event.licensePlate());
+
+		if (event.entryTime() == null) {
+			throw new BusinessValidationException("Horário de entrada é obrigatório");
+		}
 
 		if (vehicleRepository.existsByLicensePlateAndStatusIn(event.licensePlate(), ACTIVE_STATUSES)) {
 			throw new ParkingFullException("Veículo já possui sessão ativa: " + event.licensePlate());
@@ -87,7 +92,7 @@ public class ParkingService {
 		validateLicensePlate(event.licensePlate());
 
 		if (event.lat() == null || event.lng() == null) {
-			throw new IllegalArgumentException("Coordenadas são obrigatórias para o evento PARKED");
+			throw new BusinessValidationException("Coordenadas são obrigatórias para o evento PARKED");
 		}
 
 		Vehicle vehicle = findActiveVehicle(event.licensePlate());
@@ -121,7 +126,15 @@ public class ParkingService {
 	public void handleExit(ExitEventDTO event) {
 		validateLicensePlate(event.licensePlate());
 
+		if (event.exitTime() == null) {
+			throw new BusinessValidationException("Horário de saída é obrigatório");
+		}
+
 		Vehicle vehicle = findActiveVehicle(event.licensePlate());
+
+		if (event.exitTime().isBefore(vehicle.getEntryTime())) {
+			throw new BusinessValidationException("Horário de saída não pode ser anterior ao horário de entrada");
+		}
 
 		long durationMinutes = ChronoUnit.MINUTES.between(vehicle.getEntryTime(), event.exitTime());
 		BigDecimal amount = pricingService.calculateParkingFee(vehicle.getHourlyRate(), durationMinutes);
@@ -173,7 +186,7 @@ public class ParkingService {
 
 	private void validateLicensePlate(String licensePlate) {
 		if (licensePlate == null || licensePlate.isBlank()) {
-			throw new IllegalArgumentException("Placa do veículo é obrigatória");
+			throw new BusinessValidationException("Placa do veículo é obrigatória");
 		}
 	}
 

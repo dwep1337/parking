@@ -9,6 +9,7 @@ import java.time.ZoneOffset;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.estapar.exception.BusinessValidationException;
 import com.estapar.dto.RevenueResponseDTO;
 import com.estapar.repository.GarageSectorRepository;
 import com.estapar.repository.RevenueRepository;
@@ -26,8 +27,14 @@ public class RevenueService {
 
 	@Transactional(readOnly = true)
 	public RevenueResponseDTO getRevenue(LocalDate date, String sector) {
+		if (date == null) {
+			throw new BusinessValidationException("Parâmetro date é obrigatório");
+		}
+		if (sector == null || sector.isBlank()) {
+			throw new BusinessValidationException("Parâmetro sector é obrigatório");
+		}
 		if (!sectorRepository.existsById(sector)) {
-			throw new IllegalArgumentException("Setor não encontrado: " + sector);
+			throw new BusinessValidationException("Setor não encontrado: " + sector);
 		}
 
 		Instant start = date.atStartOfDay().toInstant(ZoneOffset.UTC);

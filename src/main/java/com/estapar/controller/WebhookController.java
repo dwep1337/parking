@@ -9,6 +9,7 @@ import com.estapar.dto.EntryEventDTO;
 import com.estapar.dto.ExitEventDTO;
 import com.estapar.dto.ParkedEventDTO;
 import com.estapar.enums.EventType;
+import com.estapar.exception.BusinessValidationException;
 import com.estapar.exception.ParkingFullException;
 import com.estapar.exception.VehicleNotFoundException;
 import com.estapar.service.ParkingService;
@@ -52,7 +53,7 @@ public class WebhookController {
 		try {
 			action.run();
 		}
-		catch (ParkingFullException | VehicleNotFoundException | IllegalArgumentException ex) {
+		catch (ParkingFullException | VehicleNotFoundException | BusinessValidationException ex) {
 			log.warn("Webhook {} ignorado: {}", eventLabel, ex.getMessage());
 		}
 	}

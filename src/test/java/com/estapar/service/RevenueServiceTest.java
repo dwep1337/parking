@@ -1,6 +1,7 @@
 package com.estapar.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -15,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.estapar.exception.BusinessValidationException;
 import com.estapar.repository.GarageSectorRepository;
 import com.estapar.repository.RevenueRepository;
 
@@ -63,6 +65,18 @@ class RevenueServiceTest {
 		var response = revenueService.getRevenue(date, "B");
 
 		assertEquals(new BigDecimal("0.00"), response.amount());
+	}
+
+	@Test
+	void shouldFailWhenSectorDoesNotExist() {
+		when(sectorRepository.existsById("Z")).thenReturn(false);
+
+		assertThrows(BusinessValidationException.class, () -> revenueService.getRevenue(date, "Z"));
+	}
+
+	@Test
+	void shouldFailWhenDateIsNull() {
+		assertThrows(BusinessValidationException.class, () -> revenueService.getRevenue(null, "A"));
 	}
 
 }
