@@ -49,7 +49,7 @@ Remover também o volume do banco:
 docker compose down -v
 ```
 
-O perfil `docker` ([`application-docker.yml`](src/main/resources/application-docker.yml)) aponta o backend para `mysql` e `garage-sim` pelos nomes dos serviços. O simulador recebe `EXTERNAL_API_URL=http://parking:3003/webhook` via Compose.
+O perfil `docker` ([`application-docker.yml`](src/main/resources/application-docker.yml)) aponta o backend para `mysql` e `garage-sim` pelos nomes dos serviços. O simulador recebe `CLIENT_WEBHOOK_URL=http://parking:3003/webhook` via Compose.
 
 ### Opção B — Desenvolvimento local
 

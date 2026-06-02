@@ -21,7 +21,7 @@ services:
     image: cfontes0estapar/garage-sim:1.0.0
     container_name: parking-garage-sim
     environment:
-      EXTERNAL_API_URL: http://parking:3003/webhook
+      CLIENT_WEBHOOK_URL: http://parking:3003/webhook
     ports:
       - "3000:3000"
 
