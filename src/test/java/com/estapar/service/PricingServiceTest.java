@@ -77,15 +77,34 @@ class PricingServiceTest {
 	}
 
 	@Test
-	void shouldChargeOneHourWhen90BillableMinutesAfterFreePeriod() {
-		BigDecimal fee = pricingService.calculateParkingFee(new BigDecimal("10.00"), 90);
+	void shouldChargeOneHourWhenStay60Minutes() {
+		BigDecimal fee = pricingService.calculateParkingFee(new BigDecimal("10.00"), 60);
 		assertEquals(new BigDecimal("10.00"), fee);
 	}
 
 	@Test
-	void shouldChargeTwoHoursWhen91BillableMinutesAfterFreePeriod() {
-		BigDecimal fee = pricingService.calculateParkingFee(new BigDecimal("10.00"), 121);
+	void shouldChargeTwoHoursWhenStay61Minutes() {
+		BigDecimal fee = pricingService.calculateParkingFee(new BigDecimal("10.00"), 61);
 		assertEquals(new BigDecimal("20.00"), fee);
+	}
+
+	@Test
+	void shouldChargeTwoHoursWhenStay120Minutes() {
+		BigDecimal fee = pricingService.calculateParkingFee(new BigDecimal("10.00"), 120);
+		assertEquals(new BigDecimal("20.00"), fee);
+	}
+
+	@Test
+	void shouldChargeThreeHoursWhenStay121Minutes() {
+		BigDecimal fee = pricingService.calculateParkingFee(new BigDecimal("10.00"), 121);
+		assertEquals(new BigDecimal("30.00"), fee);
+	}
+
+
+	@Test
+	void shouldChargeZeroWhenStayZeroMinutes() {
+		BigDecimal fee = pricingService.calculateParkingFee(new BigDecimal("10.00"), 0);
+		assertEquals(new BigDecimal("0.00"),fee);
 	}
 
 }

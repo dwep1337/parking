@@ -45,8 +45,7 @@ public class PricingService {
 			return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 		}
 
-		long billableMinutes = durationMinutes - FREE_MINUTES;
-		long billableHours = (billableMinutes + 59) / 60;
+		long billableHours = (long) Math.ceil(durationMinutes / 60.0);
 
 		return hourlyRate
 				.multiply(BigDecimal.valueOf(billableHours))

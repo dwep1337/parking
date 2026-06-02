@@ -31,11 +31,11 @@ curl -s "http://localhost:3003/revenue?date=2025-01-01&sector=A"
 curl -s http://localhost:3000/garage | head
 ```
 
-| Serviço      | URL / porta host |
-| ------------ | ---------------- |
-| Backend      | http://localhost:3003 |
-| Simulador    | http://localhost:3000 |
-| MySQL        | localhost:3306 |
+| Serviço   | URL / porta host      |
+| --------- | --------------------- |
+| Backend   | http://localhost:3003 |
+| Simulador | http://localhost:3000 |
+| MySQL     | localhost:3306        |
 
 Parar e remover containers:
 
@@ -91,10 +91,10 @@ Na subida, a aplicação sincroniza setores e vagas via `GET /garage`.
 
 ## Endpoints
 
-| Método | URL                                 | Descrição                    |
-| ------ | ----------------------------------- | ---------------------------- |
-| POST   | `/webhook`                          | Eventos ENTRY, PARKED, EXIT  |
-| GET    | `/revenue`                          | Faturamento do setor na data |
+| Método | URL        | Descrição                    |
+| ------ | ---------- | ---------------------------- |
+| POST   | `/webhook` | Eventos ENTRY, PARKED, EXIT  |
+| GET    | `/revenue` | Faturamento do setor na data |
 
 ### Webhook
 
@@ -148,9 +148,16 @@ A tarifa horária efetiva (`hourlyRate`) é **persistida no ENTRY** e reutilizad
 
 ### Cobrança
 
-- Primeiros **30 minutos** gratuitos.
-- Após isso: `ceil((minutos - 30) / 60)` horas × `hourlyRate`.
-- Exemplos: 31 min → 1h; 120 min totais → 90 min cobráveis → 2h.
+Permanências de até 30 minutos são gratuitas. Ao ultrapassar esse período, a cobrança considera o tempo total de permanência arredondado para cima em horas inteiras.
+
+Exemplo:
+
+```text
+30 min → grátis
+31 min → 1h
+61 min → 2h
+121 min → 3h
+```
 
 ### Lotação
 
